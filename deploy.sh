@@ -1,4 +1,7 @@
-# Run it from the root of your Jekyll site like bash Jekyll-S3.sh
+#!/bin/bash
+
+# original based on: https://gist.github.com/imkarthikk/2fe9053f0aef275f5527
+# Run it from the root of your Jekyll site
 
 ##
 # Configuration options
