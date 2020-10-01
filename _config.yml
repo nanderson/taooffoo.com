@@ -22,8 +22,8 @@ title: Tao Of Foo - Nathan Anderson
 email: nathan@nathananderson.com
 description: >- # this means to ignore newlines until "baseurl:"
   Personal blog of Nathan Anderson. The views and content here do not necessarily reflect those of my employer.
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "/" # the subpath of your site, e.g. /blog
+url: "https://taooffoo.com" # the base hostname & protocol for your site, e.g. http://example.com
 #twitter_username: mtman97
 #github_username:  nanderson
 author: Nathan Anderson
@@ -195,4 +195,5 @@ exclude:
   - vendor/gems/
   - vendor/ruby/
   - _posts_draft/
-  - READMNE.md
+  - README.md
+  - deploy.sh
