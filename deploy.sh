@@ -108,7 +108,7 @@ for f in $(find . -name '*.css' -or -name '*.map'); do s3cmd modify --add-header
 for f in $(find . -name '*.js'); do s3cmd modify --add-header='Content-Type: application/javascript' $BUCKET/${f:2} ; done
 for f in $(find . -name '*.html'); do s3cmd modify --add-header='Content-Type: text/html' $BUCKET/${f:2} ; done
 for f in $(find . -name '*.xml'); do s3cmd modify --add-header='Content-Type: application/xml' $BUCKET/${f:2} ; done
-
+s3cmd modify --add-header='Content-Type: application/atom+xml' $BUCKET/feed.xml
 
 
 # Sync everything else
