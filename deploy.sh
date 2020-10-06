@@ -7,7 +7,6 @@
 # Configuration options
 ##
 STAGING_BUCKET='s3://<YOUR-S3-BUCKET-NAME>'
-#arn:aws:s3:::taooffoo.com
 LIVE_BUCKET='s3://taooffoo.com'
 SITE_DIR='_site/'
 
@@ -60,6 +59,7 @@ if [[ "$1" = "live" ]]; then
 else
 	BUCKET=$STAGING_BUCKET
 	green 'Deploying to staging bucket'
+    exit 2
 fi
 
 
@@ -67,27 +67,50 @@ red '--> Running Jekyll'
 bundle exec jekyll build
 
 
-red '--> Gzipping all html, css and js files'
-find $SITE_DIR \( -iname '*.html' -o -iname '*.css' -o -iname '*.js' \) -exec gzip -9 -n {} \; -exec mv {}.gz {} \;
+#red '--> Gzipping all html, css and js files'
+#find $SITE_DIR \( -iname '*.html' -o -iname '*.css' -o -iname '*.js' \) -exec gzip -9 -n {} \; -exec mv {}.gz {} \;
+#find $SITE_DIR \( -iname '*.html' -o -iname '*.css' -o -iname '*.js' \) -exec gzip -9 {} \; -exec mv {}.gz {} \;
 
 
 yellow '--> Uploading css files'
-s3cmd sync --exclude '*.*' --include '*.css' --add-header='Content-Type: text/css' --add-header='Cache-Control: max-age=604800' --add-header='Content-Encoding: gzip' $SITE_DIR $BUCKET
+#s3cmd sync --exclude '*.*' --include '*.css' --add-header='Content-Type: text/css' --add-header='Cache-Control: max-age=604800' $SITE_DIR $BUCKET
+s3cmd sync --exclude '*.*' --include '*.css' --add-header='Content-Type: text/css' --add-header='Cache-Control: max-age=604800' $SITE_DIR $BUCKET
+yellow '--> Uploading map files'
+s3cmd sync --exclude '*.*' --include '*.map' --add-header='Cache-Control: max-age=604800' $SITE_DIR $BUCKET
+# --add-header='Content-Type: text/css'
 
 
 yellow '--> Uploading js files'
-s3cmd sync --exclude '*.*' --include '*.js' --add-header='Content-Type: application/javascript' --add-header='Cache-Control: max-age=604800' --add-header='Content-Encoding: gzip' $SITE_DIR $BUCKET
+#s3cmd sync --exclude '*.*' --include '*.js' --add-header='Content-Type: application/javascript' --add-header='Cache-Control: max-age=604800' $SITE_DIR $BUCKET
+s3cmd sync --exclude '*.*' --include '*.js' --add-header='Content-Type: application/javascript' --add-header='Cache-Control: max-age=604800' $SITE_DIR $BUCKET
+# --add-header='Content-Type: application/javascript' 
 
 # Sync media files first (Cache: expire in 10weeks)
-yellow '--> Uploading images (jpg, png, ico)'
-s3cmd sync --exclude '*.*' --include '*.png' --include '*.jpg' --include '*.ico' --add-header='Expires: Sat, 20 Nov 2020 18:46:39 GMT' --add-header='Cache-Control: max-age=6048000' $SITE_DIR $BUCKET
+yellow '--> Uploading images (jpg, png, ico, gif)'
+#s3cmd sync --exclude '*.*' --include '*.png' --include '*.jpg' --include '*.ico' --include '*.gif' --add-header='Expires: Sat, 20 Nov 2020 18:46:39 GMT' --add-header='Cache-Control: max-age=6048000' $SITE_DIR $BUCKET
+s3cmd sync --exclude '*.*' --include '*.png' --include '*.jpg' --include '*.ico' --include '*.gif' --add-header='Cache-Control: max-age=6048000' $SITE_DIR $BUCKET
 
 
 # Sync html files (Cache: 2 hours)
 yellow '--> Uploading html files'
-s3cmd sync --exclude '*.*' --include '*.html' --add-header='Content-Type: text/html' --add-header='Cache-Control: max-age=7200, must-revalidate' --add-header='Content-Encoding: gzip' $SITE_DIR $BUCKET
+#s3cmd sync --exclude '*.*' --include '*.html' --add-header='Content-Type: text/html' --add-header='Cache-Control: max-age=7200, must-revalidate' $SITE_DIR $BUCKET
+s3cmd sync --exclude '*.*' --include '*.html' --add-header='Content-Type: text/html' --add-header='Cache-Control: max-age=7200, must-revalidate' $SITE_DIR $BUCKET
+# --add-header='Content-Type: text/html'
+
+# Sync html files (Cache: 2 hours)
+yellow '--> Uploading xml files'
+s3cmd sync --exclude '*.*' --include '*.xml'  --add-header='Content-Type: application/xml' --add-header='Cache-Control: max-age=7200, must-revalidate' $SITE_DIR $BUCKET
+
+# Until sccmd 2.2.0 comes out we have to fix it manually: https://github.com/s3tools/s3cmd/issues/643
+red '--> Modifying Content-Type headers manually because s3cmd 2.1.0 is dumb'
+cd $SITE_DIR;
+for f in $(find . -name '*.css' -or -name '*.map'); do s3cmd modify --add-header='Content-Type: text/css' $BUCKET/${f:2} ; done
+for f in $(find . -name '*.js'); do s3cmd modify --add-header='Content-Type: application/javascript' $BUCKET/${f:2} ; done
+for f in $(find . -name '*.html'); do s3cmd modify --add-header='Content-Type: text/html' $BUCKET/${f:2} ; done
+for f in $(find . -name '*.xml'); do s3cmd modify --add-header='Content-Type: application/xml' $BUCKET/${f:2} ; done
+
 
 
 # Sync everything else
-yellow '--> Syncing everything else'
-s3cmd sync --delete-removed $SITE_DIR $BUCKET
+#yellow '--> Syncing everything else'
+#s3cmd sync --delete-removed $SITE_DIR $BUCKET
