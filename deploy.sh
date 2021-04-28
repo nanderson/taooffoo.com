@@ -90,6 +90,9 @@ yellow '--> Uploading images (jpg, png, ico, gif)'
 #s3cmd sync --exclude '*.*' --include '*.png' --include '*.jpg' --include '*.ico' --include '*.gif' --add-header='Expires: Sat, 20 Nov 2020 18:46:39 GMT' --add-header='Cache-Control: max-age=6048000' $SITE_DIR $BUCKET
 s3cmd sync --exclude '*.*' --include '*.png' --include '*.jpg' --include '*.ico' --include '*.gif' --add-header='Cache-Control: max-age=6048000' $SITE_DIR $BUCKET
 
+# Sync mp3 media files (Cache: expire in 10weeks)
+yellow '--> Uploading mp3 (mp3)'
+s3cmd sync --exclude '*.*' --include '*.mp3' --add-header='Cache-Control: max-age=6048000' $SITE_DIR $BUCKET
 
 # Sync html files (Cache: 2 hours)
 yellow '--> Uploading html files'
